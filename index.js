@@ -9,22 +9,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.get("/api", async (req, res) => {
-  let sql = "select * from users";
+  let sql = "SELECT * FROM users";
   let rsl = await executeSQL(sql);
   res.json(rsl);
 });
 
 app.post("/api/users", async (req, res) => {
-  const newUser = {
-    id: req.body.id,
-    username: req.body.username,
-    password: req.body.password,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
-  };
-  res.json(newUser);
-  // let sql = "INSERT INTO users VALUES ()";
-  // let rsl = await executeSQL(sql);
+  const { id, username, password, firstname, lastname } = req.body;
+  let sql = `INSERT INTO users (id, username, password, firstname, lastname) VALUES (${id}, '${username}', '${password}', '${firstname}', '${lastname}')`;
+  let rsl = await executeSQL(sql);
+  return res.status(201).json({ message: "New user successfull creatted" });
+});
+
+app.put("/api/users/:username", async (req, res) => {
+  const username = req.params.username;
+  const { password, firstname, lastname } = req.body;
+  let sql = `UPDATE users  SET password = '${password}', firstname = '${firstname}', lastname = '${lastname}' WHERE username = '${username}'`;
+  let rsl = await executeSQL(sql);
+  return res.status(201).json({ message: "Update user successfull" });
+});
+
+app.delete("/api/users/:username", async (req, res) => {
+  const username = req.params.username;
+  let sql = `DELETE FROM users WHERE username = '${username}'`;
+  let rsl = await executeSQL(sql);
+  return res.status(201).json({ message: "Delete user successfull" });
 });
 
 app.listen(process.env.PORT_API, () => {
